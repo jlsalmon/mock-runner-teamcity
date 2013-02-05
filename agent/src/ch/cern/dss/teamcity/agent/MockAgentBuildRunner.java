@@ -18,25 +18,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package ch.cern.dss.teamcity.server;
+
+package ch.cern.dss.teamcity.agent;
 
 import ch.cern.dss.teamcity.common.MockConstants;
-import org.jetbrains.annotations.NotNull;
+import com.sun.istack.internal.NotNull;
+import jetbrains.buildServer.RunBuildException;
+import jetbrains.buildServer.agent.*;
 
-public class MockConstantsBean {
+public class MockAgentBuildRunner implements AgentBuildRunner, AgentBuildRunnerInfo {
+    @Override
+    public BuildProcess createBuildProcess(@NotNull AgentRunningBuild agentRunningBuild,
+                                           @NotNull BuildRunnerContext buildRunnerContext) throws RunBuildException {
 
-    @NotNull
-    public String getChrootsKey() {
-        return MockConstants.CHROOTS;
+        // Init mock context
+        // Run builds in separate threads
+
+        return null;
     }
 
-    @NotNull
-    public String getConfigDirectoryKey() {
-        return MockConstants.CONFIG_DIR;
+    @Override
+    public AgentBuildRunnerInfo getRunnerInfo() {
+        return this;
     }
 
-    @NotNull
-    public String getSourceRpmsKey() {
-        return MockConstants.SOURCE_RPMS;
+    @Override
+    public String getType() {
+        return MockConstants.TYPE;
+    }
+
+    @Override
+    public boolean canRun(@NotNull BuildAgentConfiguration buildAgentConfiguration) {
+        return true;
     }
 }

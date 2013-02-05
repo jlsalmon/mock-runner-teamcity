@@ -24,4 +24,10 @@ public interface MockConstants {
     String TYPE = "mock-runner";
     String DESCRIPTION = "Build RPMs for multiple architectures concurrently using mock";
     String DISPLAY_NAME = "Mock Runner";
+
+    String CHROOTS = "mock.chroots";
+    String CONFIG_DIR = "mock.config.dir";
+    String SOURCE_RPMS = "mock.srpms";
+
+    String DEFAULT_CONFIG_DIR = "/etc/mock";
 }

@@ -27,6 +27,7 @@ import jetbrains.buildServer.serverSide.RunTypeRegistry;
 import jetbrains.buildServer.web.openapi.PluginDescriptor;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class MockRunType extends RunType {
@@ -71,7 +72,9 @@ public class MockRunType extends RunType {
 
     @Override
     public Map<String, String> getDefaultRunnerProperties() {
-        return null;
+        Map<String, String> defaults = new HashMap<String, String>();
+        defaults.put(MockConstants.CONFIG_DIR, MockConstants.DEFAULT_CONFIG_DIR);
+        return defaults;
     }
 
     /**
@@ -87,7 +90,8 @@ public class MockRunType extends RunType {
     public String describeParameters(@NotNull Map<String, String> parameters) {
         StringBuilder sb = new StringBuilder();
 
-        // TODO
+        sb.append("Chroots: ").append(parameters.get(MockConstants.CHROOTS)).append("\n");
+        sb.append("Source RPMs: ").append(parameters.get(MockConstants.SOURCE_RPMS)).append("\n");
 
         return sb.toString();
     }

@@ -20,15 +20,30 @@
 
 package ch.cern.dss.teamcity.server;
 
+import ch.cern.dss.teamcity.common.MockConstants;
 import jetbrains.buildServer.serverSide.InvalidProperty;
 import jetbrains.buildServer.serverSide.PropertiesProcessor;
+import jetbrains.buildServer.util.PropertiesUtil;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
 public class MockPropertiesProcessor implements PropertiesProcessor {
     @Override
-    public Collection<InvalidProperty> process(Map<String, String> stringStringMap) {
-        return null;
+    public Collection<InvalidProperty> process(Map<String, String> properties) {
+        final Collection<InvalidProperty> result = new ArrayList<InvalidProperty>();
+
+        if (PropertiesUtil.isEmptyOrNull(properties.get(MockConstants.CHROOTS))) {
+            result.add(new InvalidProperty(MockConstants.CHROOTS,
+                    "At least one chroot must be specified"));
+        }
+
+        if (PropertiesUtil.isEmptyOrNull(properties.get(MockConstants.SOURCE_RPMS))) {
+            result.add(new InvalidProperty(MockConstants.SOURCE_RPMS,
+                    "At least one source RPM must be specified"));
+        }
+
+        return result;
     }
 }
