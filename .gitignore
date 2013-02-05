@@ -4,3 +4,10 @@
 *.jar
 *.war
 *.ear
+
+out
+lib 
+lib-compile
+dist
+.idea
+
