@@ -57,6 +57,7 @@ public class MockCallable implements Callable<BuildFinishedStatus> {
 
             clean();
             rebuild();
+            publishResults();
 
         } catch (Exception e) {
             logger.exception(e);
@@ -93,7 +94,6 @@ public class MockCallable implements Callable<BuildFinishedStatus> {
     }
 
     private void rebuild() throws RunBuildException {
-        logger.message("rebuild");
         String[] command = {MockConstants.MOCK_EXECUTABLE,
                 "--rebuild", "-r", context.getChrootName(),
                 "--configdir=" + context.getMockConfigDirectory(),
@@ -111,5 +111,39 @@ public class MockCallable implements Callable<BuildFinishedStatus> {
         if (result.getReturnCode() != 0) {
             throw new RunBuildException("Error running mock: " + result.getOutput());
         }
+    }
+
+    private void publishResults() throws IOException {
+        // Make sure the results (artifacts) directory exists
+        if (!new File(context.getArtifactsPath()).exists()) {
+            new File(context.getArtifactsPath()).mkdirs();
+        }
+
+        // Create the destination directory if it doesn't exist
+        File destinationDirectory = new File(context.getArtifactsPath(), context.getChrootName());
+        if (!destinationDirectory.exists()) {
+            destinationDirectory.mkdirs();
+        }
+
+        // Create the log directory if it doesn't exist
+        File logDirectory = new File(destinationDirectory, "logs");
+        if (!logDirectory.exists()) {
+            logDirectory.mkdirs();
+        }
+
+        // Move the results to the artifact directory
+        File sourceDirectory = new File(MockConstants.MOCK_CHROOT_DIR, context.getChrootName() + "/result");
+        for (File file : sourceDirectory.listFiles()) {
+            if (file.getName().endsWith(".log")) {
+                FileUtils.copyFile(file, new File(logDirectory, file.getName()));
+            }
+
+            if (file.getName().endsWith(".rpm")) {
+                FileUtils.copyFile(file, new File(destinationDirectory, file.getName()));
+            }
+        }
+
+        // Write metadata
+        // Generate log report
     }
 }

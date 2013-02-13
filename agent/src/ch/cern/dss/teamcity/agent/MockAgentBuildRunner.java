@@ -60,20 +60,16 @@ public class MockAgentBuildRunner implements AgentBuildRunner, AgentBuildRunnerI
         for (String configFile : mockConfigFiles) {
             chrootNames.add(FilenameUtils.removeExtension(new File(configFile).getName()));
         }
-        logger.message("Building in the following chroots: " + Arrays.toString(mockConfigFiles.toArray()));
+        logger.message("Building in the following chroots: " + Arrays.toString(chrootNames.toArray()));
 
         // Find srpms
         List<String> srpms = FileUtil.findFiles(runnerParameters.get(MockConstants.SOURCE_RPM_DIR),
                 runnerParameters.get(MockConstants.SOURCE_RPMS));
         logger.message("Building packages: " + Arrays.toString(srpms.toArray()));
 
-        // Init mock context
-        // Run builds in separate threads
-        // Copy build results to artifact directory
-        // Write log report
-        // Write metadata
-
-        return new MockBuildProcess(chrootNames, runnerParameters.get(MockConstants.CONFIG_DIR), srpms, logger);
+        // Return custom build process
+        return new MockBuildProcess(chrootNames, runnerParameters.get(MockConstants.CONFIG_DIR), srpms,
+                agentRunningBuild.getArtifactsPaths(), logger);
     }
 
     @Override

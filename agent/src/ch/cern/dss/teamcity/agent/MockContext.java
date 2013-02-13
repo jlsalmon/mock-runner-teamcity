@@ -28,11 +28,16 @@ public class MockContext {
     private final String chrootName;
     private final String mockConfigDirectory;
     private final List<String> srpms;
+    private final String artifactsPath;
 
-    public MockContext(@NotNull String chrootName, @NotNull String mockConfigDirectory, @NotNull List<String> srpms) {
+    public MockContext(@NotNull String chrootName,
+                       @NotNull String mockConfigDirectory,
+                       @NotNull List<String> srpms,
+                       @NotNull String artifactsPath) {
         this.chrootName = chrootName;
         this.mockConfigDirectory = mockConfigDirectory;
         this.srpms = srpms;
+        this.artifactsPath = artifactsPath;
     }
 
     public String getChrootName() {
@@ -45,5 +50,9 @@ public class MockContext {
 
     public List<String> getSrpms() {
         return srpms;
+    }
+
+    public String getArtifactsPath() {
+        return artifactsPath;
     }
 }

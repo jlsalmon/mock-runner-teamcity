@@ -27,8 +27,9 @@ import jetbrains.buildServer.agent.BuildProcess;
 import jetbrains.buildServer.agent.BuildProgressLogger;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 
 public class MockBuildProcess implements BuildProcess {
@@ -36,21 +37,24 @@ public class MockBuildProcess implements BuildProcess {
     private final List<String> chrootNames;
     private final String mockConfigDirectory;
     private final List<String> srpms;
+    private final String artifactPaths;
     private final BuildProgressLogger logger;
-    private List<Future<BuildFinishedStatus>> futures;
+    private Map<String, Future<BuildFinishedStatus>> futures;
     private boolean isInterrupted = false;
     private boolean isFinished = false;
 
     public MockBuildProcess(@NotNull List<String> chrootNames,
                             @NotNull String mockConfigDirectory,
                             @NotNull List<String> srpms,
+                            @NotNull String artifactPaths,
                             @NotNull BuildProgressLogger logger) {
 
         this.chrootNames = chrootNames;
         this.mockConfigDirectory = mockConfigDirectory;
         this.srpms = srpms;
+        this.artifactPaths = artifactPaths;
         this.logger = logger;
-        this.futures =  new ArrayList<Future<BuildFinishedStatus>>();
+        this.futures = new HashMap<String, Future<BuildFinishedStatus>>();
     }
 
     @Override
@@ -59,10 +63,10 @@ public class MockBuildProcess implements BuildProcess {
 
         for (String chrootName : chrootNames) {
             Callable<BuildFinishedStatus> thread = new MockCallable(
-                    new MockContext(chrootName, mockConfigDirectory, srpms), logger);
+                    new MockContext(chrootName, mockConfigDirectory, srpms, artifactPaths), logger);
 
             Future<BuildFinishedStatus> submit = executor.submit(thread);
-            futures.add(submit);
+            futures.put(chrootName, submit);
         }
     }
 
@@ -83,12 +87,12 @@ public class MockBuildProcess implements BuildProcess {
 
     @Override
     public BuildFinishedStatus waitFor() throws RunBuildException {
-        for (Future<BuildFinishedStatus> future : futures) {
+        for (Map.Entry<String, Future<BuildFinishedStatus>> entry : futures.entrySet()) {
 
             try {
-                logger.message("Future: " + future.get().name());
+                logger.message("Result (" + entry.getKey() + "): " + entry.getValue().get().name());
 
-                if (future.get().equals(BuildFinishedStatus.FINISHED_FAILED)) {
+                if (entry.getValue().get().equals(BuildFinishedStatus.FINISHED_FAILED)) {
                     return BuildFinishedStatus.FINISHED_FAILED;
                 }
 
