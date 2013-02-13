@@ -20,40 +20,29 @@
 
 package ch.cern.dss.teamcity.agent;
 
-import ch.cern.dss.teamcity.common.MockConstants;
 import jetbrains.buildServer.RunBuildException;
-import jetbrains.buildServer.agent.*;
+import jetbrains.buildServer.agent.AgentRunningBuild;
+import jetbrains.buildServer.agent.BuildProgressLogger;
+import jetbrains.buildServer.agent.BuildRunnerContext;
 import org.jetbrains.annotations.NotNull;
 
-public class MockAgentBuildRunner implements AgentBuildRunner, AgentBuildRunnerInfo {
+public class MockRunnable extends Thread {
 
-    BuildProgressLogger logger;
+    private final AgentRunningBuild agentRunningBuild;
+    private final BuildRunnerContext buildRunnerContext;
+    private final BuildProgressLogger logger;
 
-    @Override
-    public BuildProcess createBuildProcess(@NotNull AgentRunningBuild agentRunningBuild,
-                                           @NotNull BuildRunnerContext buildRunnerContext) throws RunBuildException {
+    public MockRunnable(@NotNull AgentRunningBuild agentRunningBuild,
+                        @NotNull BuildRunnerContext buildRunnerContext,
+                        @NotNull BuildProgressLogger logger) {
 
-        this.logger = agentRunningBuild.getBuildLogger();
-        logger.message("Creating build process");
-
-        // Init mock context
-        // Run builds in separate threads
-
-        return new MockBuildProcess(agentRunningBuild, buildRunnerContext, logger);
+        this.agentRunningBuild = agentRunningBuild;
+        this.buildRunnerContext = buildRunnerContext;
+        this.logger = logger;
     }
 
     @Override
-    public AgentBuildRunnerInfo getRunnerInfo() {
-        return this;
-    }
-
-    @Override
-    public String getType() {
-        return MockConstants.TYPE;
-    }
-
-    @Override
-    public boolean canRun(@NotNull BuildAgentConfiguration buildAgentConfiguration) {
-        return true;
+    public void run() {
+        logger.message("Starting a thread");
     }
 }
