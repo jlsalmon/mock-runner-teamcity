@@ -36,6 +36,11 @@ public class MockConstantsBean {
     }
 
     @NotNull
+    public String getSourceRpmDirectoryKey() {
+        return MockConstants.SOURCE_RPM_DIR;
+    }
+
+    @NotNull
     public String getSourceRpmsKey() {
         return MockConstants.SOURCE_RPMS;
     }

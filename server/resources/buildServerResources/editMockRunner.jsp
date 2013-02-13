@@ -30,13 +30,17 @@
 
 <layout:settingsGroup title="Mock Settings">
     <tr>
-        <th><label for="${constants.chrootsKey}">Chroots:</label></th>
+        <th><label for="${constants.chrootsKey}">Chroot names:</label></th>
         <td>
-            <props:textProperty name="${constants.chrootsKey}" className="longField" maxlength="256"/>
+            <props:multilineProperty name="${constants.chrootsKey}"
+                                     className="longField"
+                                     linkTitle="Type chroot names or wildcards"
+                                     cols="55" rows="5"
+                                     expanded="true"/>
             <span class="error" id="error_${constants.chrootsKey}"></span>
-            <span class="smallNote">Specify the chroots to use, separated by whitespace
+            <span class="smallNote">Specify the names of the chroots to use, separated by whitespace
                 (e.g. <b>epel-6-i386 epel-6-x86_64</b>). You must have a <b>&lt;chroot_name&gt;.cfg</b> in either the
-                default config directory or a custom directory (specified below).</span>
+                default config directory or a custom directory (specified below). Ant-like wildcards accepted.</span>
         </td>
     </tr>
     <tr>
@@ -49,12 +53,24 @@
         </td>
     </tr>
     <tr>
+        <th><label for="${constants.sourceRpmDirectoryKey}">Source RPM directory:</label></th>
+        <td>
+            <props:textProperty name="${constants.sourceRpmDirectoryKey}" className="longField" maxlength="256"/>
+            <span class="error" id="error_${constants.configDirectoryKey}"></span>
+            <span class="smallNote">Specify the directory in which source RPMs reside.</span>
+        </td>
+    </tr>
+    <tr>
         <th><label for="${constants.sourceRpmsKey}">Source RPMs:</label></th>
         <td>
-            <props:textProperty name="${constants.sourceRpmsKey}" className="longField" maxlength="256"/>
+            <props:multilineProperty name="${constants.sourceRpmsKey}"
+                                     className="longField"
+                                     linkTitle="Type source RPMs or wildcards"
+                                     cols="55" rows="5"
+                                     expanded="true"/>
             <span class="error" id="error_${constants.sourceRpmsKey}"></span>
             <span class="smallNote">Specify the source RPMs to be built, separated by whitespace. TeamCity variables
-                can be used (e.g. %system.teamcity.build.tempDir%/foo-1.0.src.rpm).</span>
+                can be used (e.g. %system.teamcity.build.tempDir%/foo-1.0.src.rpm). Ant-like wildcards accepted.</span>
         </td>
     </tr>
 </layout:settingsGroup>

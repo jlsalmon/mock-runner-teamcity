@@ -39,6 +39,11 @@ public class MockPropertiesProcessor implements PropertiesProcessor {
                     "At least one chroot must be specified"));
         }
 
+        if (PropertiesUtil.isEmptyOrNull(properties.get(MockConstants.SOURCE_RPM_DIR))) {
+            result.add(new InvalidProperty(MockConstants.SOURCE_RPM_DIR,
+                    "Source RPM directory must be specified"));
+        }
+
         if (PropertiesUtil.isEmptyOrNull(properties.get(MockConstants.SOURCE_RPMS))) {
             result.add(new InvalidProperty(MockConstants.SOURCE_RPMS,
                     "At least one source RPM must be specified"));

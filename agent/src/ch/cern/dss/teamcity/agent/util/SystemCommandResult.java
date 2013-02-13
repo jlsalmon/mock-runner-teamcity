@@ -18,20 +18,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package ch.cern.dss.teamcity.common;
+package ch.cern.dss.teamcity.agent.util;
 
-public interface MockConstants {
-    String TYPE = "mock-runner";
-    String DESCRIPTION = "Build RPMs for multiple architectures concurrently using mock";
-    String DISPLAY_NAME = "Mock Build Runner";
+public class SystemCommandResult {
 
-    String CHROOTS = "mock.chroots";
-    String CONFIG_DIR = "mock.config.dir";
-    String SOURCE_RPMS = "mock.srpms";
-    String SOURCE_RPM_DIR = "mock.srpm.dir";
+    private int returnCode;
+    private String output;
 
-    String MOCK_EXECUTABLE = "/usr/bin/mock";
-    String DEFAULT_CONFIG_DIR = "/etc/mock";
-    String MOCK_CHROOT_DIR = "/var/lib/mock";
-    Integer MAX_CONCURRENT_MOCK_BUILDS = 4;
+    public SystemCommandResult(int returnCode, String output) {
+        this.returnCode = returnCode;
+        this.output = output;
+    }
+
+    public int getReturnCode() {
+        return returnCode;
+    }
+
+    public String getOutput() {
+        return output;
+    }
 }

@@ -20,29 +20,30 @@
 
 package ch.cern.dss.teamcity.agent;
 
-import jetbrains.buildServer.RunBuildException;
-import jetbrains.buildServer.agent.AgentRunningBuild;
-import jetbrains.buildServer.agent.BuildProgressLogger;
-import jetbrains.buildServer.agent.BuildRunnerContext;
 import org.jetbrains.annotations.NotNull;
 
-public class MockRunnable extends Thread {
+import java.util.List;
 
-    private final AgentRunningBuild agentRunningBuild;
-    private final BuildRunnerContext buildRunnerContext;
-    private final BuildProgressLogger logger;
+public class MockContext {
+    private final String chrootName;
+    private final String mockConfigDirectory;
+    private final List<String> srpms;
 
-    public MockRunnable(@NotNull AgentRunningBuild agentRunningBuild,
-                        @NotNull BuildRunnerContext buildRunnerContext,
-                        @NotNull BuildProgressLogger logger) {
-
-        this.agentRunningBuild = agentRunningBuild;
-        this.buildRunnerContext = buildRunnerContext;
-        this.logger = logger;
+    public MockContext(@NotNull String chrootName, @NotNull String mockConfigDirectory, @NotNull List<String> srpms) {
+        this.chrootName = chrootName;
+        this.mockConfigDirectory = mockConfigDirectory;
+        this.srpms = srpms;
     }
 
-    @Override
-    public void run() {
-        logger.message("Starting a thread");
+    public String getChrootName() {
+        return chrootName;
+    }
+
+    public String getMockConfigDirectory() {
+        return mockConfigDirectory;
+    }
+
+    public List<String> getSrpms() {
+        return srpms;
     }
 }

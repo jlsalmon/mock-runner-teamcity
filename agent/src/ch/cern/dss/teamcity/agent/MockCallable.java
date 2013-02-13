@@ -1,0 +1,115 @@
+/**
+ * Copyright (c) 2012-2013 by European Organization for Nuclear Research (CERN)
+ * Author: Justin Salmon <jsalmon@cern.ch>
+ *
+ * This file is part of the Mock TeamCity plugin.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package ch.cern.dss.teamcity.agent;
+
+import ch.cern.dss.teamcity.agent.util.IOUtil;
+import ch.cern.dss.teamcity.agent.util.SystemCommandResult;
+import ch.cern.dss.teamcity.common.MockConstants;
+import com.intellij.openapi.util.text.StringUtil;
+import jetbrains.buildServer.RunBuildException;
+import jetbrains.buildServer.agent.BuildFinishedStatus;
+import jetbrains.buildServer.agent.BuildProgressLogger;
+import org.apache.commons.io.FileUtils;
+import org.jetbrains.annotations.NotNull;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.concurrent.Callable;
+
+public class MockCallable implements Callable<BuildFinishedStatus> {
+
+    private final MockContext context;
+    private final BuildProgressLogger logger;
+
+    public MockCallable(@NotNull MockContext context, @NotNull BuildProgressLogger logger) {
+        this.context = context;
+        this.logger = logger;
+    }
+
+    @Override
+    public BuildFinishedStatus call() throws RunBuildException {
+
+        // Initialize the chroot environment, if necessary.
+        try {
+
+            if (!new File(MockConstants.MOCK_CHROOT_DIR, context.getChrootName()).exists()) {
+                initializeChrootEnvironment();
+            }
+
+            clean();
+            rebuild();
+
+        } catch (Exception e) {
+            logger.exception(e);
+            return BuildFinishedStatus.FINISHED_FAILED;
+        }
+
+        return BuildFinishedStatus.FINISHED_SUCCESS;
+    }
+
+    /**
+     * Initialize an individual chroot environment with mock.
+     */
+    private void initializeChrootEnvironment() throws RunBuildException {
+        logger.message("Initializing mock environment: " + context.getChrootName());
+
+        String[] command = {MockConstants.MOCK_EXECUTABLE,
+                "--init", "-r", context.getChrootName(),
+                "--configdir=" + context.getMockConfigDirectory()};
+        SystemCommandResult result;
+
+        try {
+            result = IOUtil.runSystemCommand(command);
+        } catch (Exception e) {
+            throw new RunBuildException("Unable to initialize mock environment: " + e.getMessage());
+        }
+
+        if (result.getReturnCode() != 0) {
+            throw new RunBuildException("Unable to initialize mock environment: " + result.getOutput());
+        }
+    }
+
+    private void clean() throws IOException {
+        FileUtils.deleteDirectory(new File(MockConstants.MOCK_CHROOT_DIR, context.getChrootName() + "/result"));
+    }
+
+    private void rebuild() throws RunBuildException {
+        logger.message("rebuild");
+        String[] command = {MockConstants.MOCK_EXECUTABLE,
+                "--rebuild", "-r", context.getChrootName(),
+                "--configdir=" + context.getMockConfigDirectory(),
+                StringUtil.join(context.getSrpms(), " ")};
+        SystemCommandResult result;
+
+        logger.message("Running mock: " + Arrays.toString(command));
+
+        try {
+            result = IOUtil.runSystemCommand(command);
+        } catch (Exception e) {
+            throw new RunBuildException("Error running mock: " + e.getMessage());
+        }
+
+        if (result.getReturnCode() != 0) {
+            throw new RunBuildException("Error running mock: " + result.getOutput());
+        }
+    }
+}

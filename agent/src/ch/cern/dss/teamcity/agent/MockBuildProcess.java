@@ -20,71 +20,88 @@
 
 package ch.cern.dss.teamcity.agent;
 
+import ch.cern.dss.teamcity.common.MockConstants;
 import jetbrains.buildServer.RunBuildException;
-import jetbrains.buildServer.agent.*;
+import jetbrains.buildServer.agent.BuildFinishedStatus;
+import jetbrains.buildServer.agent.BuildProcess;
+import jetbrains.buildServer.agent.BuildProgressLogger;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.*;
 
 public class MockBuildProcess implements BuildProcess {
 
-    private final AgentRunningBuild agentRunningBuild;
-    private final BuildRunnerContext buildRunnerContext;
+    private final List<String> chrootNames;
+    private final String mockConfigDirectory;
+    private final List<String> srpms;
     private final BuildProgressLogger logger;
-    private List<MockRunnable> threads;
+    private List<Future<BuildFinishedStatus>> futures;
     private boolean isInterrupted = false;
     private boolean isFinished = false;
 
-    public MockBuildProcess(@NotNull AgentRunningBuild agentRunningBuild,
-                            @NotNull BuildRunnerContext buildRunnerContext,
+    public MockBuildProcess(@NotNull List<String> chrootNames,
+                            @NotNull String mockConfigDirectory,
+                            @NotNull List<String> srpms,
                             @NotNull BuildProgressLogger logger) {
-        this.agentRunningBuild = agentRunningBuild;
-        this.buildRunnerContext = buildRunnerContext;
+
+        this.chrootNames = chrootNames;
+        this.mockConfigDirectory = mockConfigDirectory;
+        this.srpms = srpms;
         this.logger = logger;
-        this.threads = new ArrayList<MockRunnable>();
+        this.futures =  new ArrayList<Future<BuildFinishedStatus>>();
     }
 
     @Override
     public void start() throws RunBuildException {
-        logger.message("start()");
+        ExecutorService executor = Executors.newFixedThreadPool(MockConstants.MAX_CONCURRENT_MOCK_BUILDS);
 
-        for (int i = 0; i < 3; i++) {
-            MockRunnable thread = new MockRunnable(agentRunningBuild, buildRunnerContext, logger);
-            thread.start();
-            threads.add(thread);
+        for (String chrootName : chrootNames) {
+            Callable<BuildFinishedStatus> thread = new MockCallable(
+                    new MockContext(chrootName, mockConfigDirectory, srpms), logger);
+
+            Future<BuildFinishedStatus> submit = executor.submit(thread);
+            futures.add(submit);
         }
     }
 
     @Override
     public boolean isInterrupted() {
-        logger.message("isInterrupted()");
         return this.isInterrupted;
     }
 
     @Override
     public boolean isFinished() {
-        logger.message("isFinished()");
         return this.isFinished;
     }
 
     @Override
     public void interrupt() {
-        logger.message("interrupt()");
+        this.isInterrupted = true;
     }
 
     @Override
     public BuildFinishedStatus waitFor() throws RunBuildException {
-        logger.message("waitFor()");
+        for (Future<BuildFinishedStatus> future : futures) {
 
-        for (MockRunnable thread : threads) {
             try {
-                thread.join();
+                logger.message("Future: " + future.get().name());
+
+                if (future.get().equals(BuildFinishedStatus.FINISHED_FAILED)) {
+                    return BuildFinishedStatus.FINISHED_FAILED;
+                }
+
             } catch (InterruptedException e) {
+                logger.exception(e);
                 return BuildFinishedStatus.INTERRUPTED;
+            } catch (ExecutionException e) {
+                logger.exception(e);
+                return BuildFinishedStatus.FINISHED_FAILED;
             }
         }
 
+        // All threads apparently finished successfully
         return BuildFinishedStatus.FINISHED_SUCCESS;
     }
 }

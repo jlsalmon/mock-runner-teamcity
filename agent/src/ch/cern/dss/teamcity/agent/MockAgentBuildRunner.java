@@ -20,26 +20,60 @@
 
 package ch.cern.dss.teamcity.agent;
 
+import ch.cern.dss.teamcity.agent.util.FileUtil;
 import ch.cern.dss.teamcity.common.MockConstants;
+import com.intellij.openapi.util.text.StringUtil;
 import jetbrains.buildServer.RunBuildException;
 import jetbrains.buildServer.agent.*;
+import org.apache.commons.io.FilenameUtils;
 import org.jetbrains.annotations.NotNull;
+
+import java.io.File;
+import java.util.*;
 
 public class MockAgentBuildRunner implements AgentBuildRunner, AgentBuildRunnerInfo {
 
-    BuildProgressLogger logger;
+    private BuildProgressLogger logger;
+    private Map<String, String> runnerParameters;
 
     @Override
     public BuildProcess createBuildProcess(@NotNull AgentRunningBuild agentRunningBuild,
                                            @NotNull BuildRunnerContext buildRunnerContext) throws RunBuildException {
 
+        this.runnerParameters = buildRunnerContext.getRunnerParameters();
         this.logger = agentRunningBuild.getBuildLogger();
-        logger.message("Creating build process");
+
+        // Append config extension if necessary
+        List<String> chrootNamesPattern = FileUtil.splitStringOnWhitespace(runnerParameters.get(MockConstants.CHROOTS));
+        for (ListIterator<String> i = chrootNamesPattern.listIterator(); i.hasNext(); ) {
+            String chrootName = i.next();
+            if (!chrootName.endsWith(".cfg")) {
+                i.set(chrootName + ".cfg");
+            }
+        }
+
+        // Find mock config files
+        List<String> mockConfigFiles = FileUtil.findFiles(runnerParameters.get(MockConstants.CONFIG_DIR),
+                StringUtil.join(chrootNamesPattern, " "));
+
+        List<String> chrootNames = new ArrayList<String>();
+        for (String configFile : mockConfigFiles) {
+            chrootNames.add(FilenameUtils.removeExtension(new File(configFile).getName()));
+        }
+        logger.message("Building in the following chroots: " + Arrays.toString(mockConfigFiles.toArray()));
+
+        // Find srpms
+        List<String> srpms = FileUtil.findFiles(runnerParameters.get(MockConstants.SOURCE_RPM_DIR),
+                runnerParameters.get(MockConstants.SOURCE_RPMS));
+        logger.message("Building packages: " + Arrays.toString(srpms.toArray()));
 
         // Init mock context
         // Run builds in separate threads
+        // Copy build results to artifact directory
+        // Write log report
+        // Write metadata
 
-        return new MockBuildProcess(agentRunningBuild, buildRunnerContext, logger);
+        return new MockBuildProcess(chrootNames, runnerParameters.get(MockConstants.CONFIG_DIR), srpms, logger);
     }
 
     @Override
