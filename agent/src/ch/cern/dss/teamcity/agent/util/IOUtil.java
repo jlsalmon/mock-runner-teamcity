@@ -20,11 +20,14 @@
 
 package ch.cern.dss.teamcity.agent.util;
 
+import jetbrains.buildServer.log.Loggers;
+
 import java.io.*;
 import java.net.URL;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 
 /**
  * Useful IO utilities.
@@ -41,16 +44,19 @@ public class IOUtil {
      * @throws java.io.IOException
      */
     public static SystemCommandResult runSystemCommand(String[] command) throws InterruptedException, IOException {
+        ProcessBuilder builder = new ProcessBuilder(command);
+        builder.redirectErrorStream(true);
+        Process process = builder.start();
 
-        Process process = Runtime.getRuntime().exec(command);
         BufferedReader reader = new BufferedReader(
                 new InputStreamReader(new BufferedInputStream(process.getInputStream())));
 
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder stringBuilder = new StringBuilder();
 
         String line;
         while ((line = reader.readLine()) != null) {
-            buffer.append(line);
+            Loggers.AGENT.info(">> " + line);
+            stringBuilder.append(line);
         }
 
         try {
@@ -59,7 +65,13 @@ public class IOUtil {
             reader.close();
         }
 
-        return new SystemCommandResult(process.exitValue(), buffer.toString());
+        return new SystemCommandResult(process.exitValue(), stringBuilder.toString());
+    }
+
+    public static <T> T[] concat(T[] first, T[] second) {
+        T[] result = Arrays.copyOf(first, first.length + second.length);
+        System.arraycopy(second, 0, result, first.length, second.length);
+        return result;
     }
 
 }

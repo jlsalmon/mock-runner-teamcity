@@ -35,8 +35,8 @@ import java.util.concurrent.*;
 public class MockBuildProcess implements BuildProcess {
 
     private final List<String> chrootNames;
-    private final String mockConfigDirectory;
     private final List<String> srpms;
+    private final Map<String, String> runnerParameters;
     private final String artifactPaths;
     private final BuildProgressLogger logger;
     private Map<String, Future<BuildFinishedStatus>> futures;
@@ -44,14 +44,13 @@ public class MockBuildProcess implements BuildProcess {
     private boolean isFinished = false;
 
     public MockBuildProcess(@NotNull List<String> chrootNames,
-                            @NotNull String mockConfigDirectory,
                             @NotNull List<String> srpms,
+                            @NotNull Map<String, String> runnerParameters,
                             @NotNull String artifactPaths,
                             @NotNull BuildProgressLogger logger) {
-
         this.chrootNames = chrootNames;
-        this.mockConfigDirectory = mockConfigDirectory;
         this.srpms = srpms;
+        this.runnerParameters = runnerParameters;
         this.artifactPaths = artifactPaths;
         this.logger = logger;
         this.futures = new HashMap<String, Future<BuildFinishedStatus>>();
@@ -63,7 +62,7 @@ public class MockBuildProcess implements BuildProcess {
 
         for (String chrootName : chrootNames) {
             Callable<BuildFinishedStatus> thread = new MockCallable(
-                    new MockContext(chrootName, mockConfigDirectory, srpms, artifactPaths), logger);
+                    new MockContext(chrootName, srpms, runnerParameters, artifactPaths), logger);
 
             Future<BuildFinishedStatus> submit = executor.submit(thread);
             futures.put(chrootName, submit);

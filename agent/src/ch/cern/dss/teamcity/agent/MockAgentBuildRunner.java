@@ -68,7 +68,7 @@ public class MockAgentBuildRunner implements AgentBuildRunner, AgentBuildRunnerI
         logger.message("Building packages: " + Arrays.toString(srpms.toArray()));
 
         // Return custom build process
-        return new MockBuildProcess(chrootNames, runnerParameters.get(MockConstants.CONFIG_DIR), srpms,
+        return new MockBuildProcess(chrootNames, srpms, runnerParameters,
                 agentRunningBuild.getArtifactsPaths(), logger);
     }
 

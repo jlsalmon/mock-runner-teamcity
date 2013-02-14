@@ -73,4 +73,17 @@
                 can be used (e.g. %system.teamcity.build.tempDir%/foo-1.0.src.rpm). Ant-like wildcards accepted.</span>
         </td>
     </tr>
+    <tr>
+        <th><label for="${constants.rpmMacrosKey}">Additional RPM macro definitions:</label></th>
+        <td>
+            <props:multilineProperty name="${constants.rpmMacrosKey}"
+                                     className="longField"
+                                     linkTitle="Type RPM macro definitions"
+                                     cols="55" rows="5"
+                                     expanded="true"/>
+            <span class="error" id="error_${constants.rpmMacrosKey}"></span>
+            <span class="smallNote">Specify any additional RPM macro definitions (e.g. <b>--define='extra_cheese
+                1'</b>), separated by whitespace.</span>
+        </td>
+    </tr>
 </layout:settingsGroup>

@@ -90,8 +90,8 @@ public class MockRunType extends RunType {
     public String describeParameters(@NotNull Map<String, String> parameters) {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("Chroots: ").append(parameters.get(MockConstants.CHROOTS)).append("\n");
-        sb.append("Source RPMs: ").append(parameters.get(MockConstants.SOURCE_RPMS)).append("\n");
+        sb.append("Chroot names: ").append(parameters.get(MockConstants.CHROOTS).replace("\n", " ")).append("\n");
+        sb.append("Source RPMs: ").append(parameters.get(MockConstants.SOURCE_RPMS).replace("\n", " ")).append("\n");
 
         return sb.toString();
     }

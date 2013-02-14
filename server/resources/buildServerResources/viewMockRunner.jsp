@@ -25,7 +25,7 @@
 <jsp:useBean id="constants" class="ch.cern.dss.teamcity.server.MockConstantsBean"/>
 
 <div class="parameter">
-    Chroots: <strong><props:displayValue name="${constants.chrootsKey}"/></strong>
+    Chroot names: <strong><props:displayValue name="${constants.chrootsKey}"/></strong>
 </div>
 
 <div class="parameter">
@@ -33,5 +33,14 @@
 </div>
 
 <div class="parameter">
+    Source RPM directory: <strong><props:displayValue name="${constants.sourceRpmDirectoryKey}"/></strong>
+</div>
+
+<div class="parameter">
     Source RPMs: <strong><props:displayValue name="${constants.sourceRpmsKey}"/></strong>
+</div>
+
+<div class="parameter">
+    Additional RPM macro definitions: <strong><props:displayValue name="${constants.rpmMacrosKey}"
+                                                                  emptyValue="<not specified>"/></strong>
 </div>

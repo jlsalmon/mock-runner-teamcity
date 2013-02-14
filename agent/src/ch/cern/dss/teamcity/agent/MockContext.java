@@ -20,22 +20,24 @@
 
 package ch.cern.dss.teamcity.agent;
 
+import ch.cern.dss.teamcity.common.MockConstants;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Map;
 
 public class MockContext {
     private final String chrootName;
-    private final String mockConfigDirectory;
     private final List<String> srpms;
+    private final Map<String, String> runnerParameters;
     private final String artifactsPath;
 
     public MockContext(@NotNull String chrootName,
-                       @NotNull String mockConfigDirectory,
                        @NotNull List<String> srpms,
+                       @NotNull Map<String, String> runnerParameters,
                        @NotNull String artifactsPath) {
         this.chrootName = chrootName;
-        this.mockConfigDirectory = mockConfigDirectory;
+        this.runnerParameters = runnerParameters;
         this.srpms = srpms;
         this.artifactsPath = artifactsPath;
     }
@@ -45,7 +47,7 @@ public class MockContext {
     }
 
     public String getMockConfigDirectory() {
-        return mockConfigDirectory;
+        return runnerParameters.get(MockConstants.CONFIG_DIR);
     }
 
     public List<String> getSrpms() {
@@ -54,5 +56,9 @@ public class MockContext {
 
     public String getArtifactsPath() {
         return artifactsPath;
+    }
+
+    public String getRpmMacros() {
+        return runnerParameters.get(MockConstants.RPM_MACROS);
     }
 }

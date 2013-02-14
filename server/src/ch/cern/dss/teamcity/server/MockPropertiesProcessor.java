@@ -49,6 +49,14 @@ public class MockPropertiesProcessor implements PropertiesProcessor {
                     "At least one source RPM must be specified"));
         }
 
+        if (!PropertiesUtil.isEmptyOrNull(properties.get(MockConstants.RPM_MACROS))) {
+            String rpmMacros = properties.get(MockConstants.RPM_MACROS);
+            if (!rpmMacros.startsWith("--define=")) {
+                result.add(new InvalidProperty(MockConstants.RPM_MACROS,
+                        "RPM macro \"" + rpmMacros + "\" invalid (must begin with \"--define=\")"));
+            }
+        }
+
         return result;
     }
 }

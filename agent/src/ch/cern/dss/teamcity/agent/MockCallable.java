@@ -81,7 +81,7 @@ public class MockCallable implements Callable<BuildFinishedStatus> {
         try {
             result = IOUtil.runSystemCommand(command);
         } catch (Exception e) {
-            throw new RunBuildException("Unable to initialize mock environment: " + e.getMessage());
+            throw new RunBuildException("Unable to initialize mock environment", e);
         }
 
         if (result.getReturnCode() != 0) {
@@ -98,14 +98,19 @@ public class MockCallable implements Callable<BuildFinishedStatus> {
                 "--rebuild", "-r", context.getChrootName(),
                 "--configdir=" + context.getMockConfigDirectory(),
                 StringUtil.join(context.getSrpms(), " ")};
-        SystemCommandResult result;
 
+        // Append RPM macros if we have any
+        if (context.getRpmMacros() != null) {
+            command = IOUtil.concat(command, new String[]{context.getRpmMacros().replace("\n", " ")});
+        }
+
+        SystemCommandResult result;
         logger.message("Running mock: " + Arrays.toString(command));
 
         try {
             result = IOUtil.runSystemCommand(command);
         } catch (Exception e) {
-            throw new RunBuildException("Error running mock: " + e.getMessage());
+            throw new RunBuildException("Error running mock", e);
         }
 
         if (result.getReturnCode() != 0) {

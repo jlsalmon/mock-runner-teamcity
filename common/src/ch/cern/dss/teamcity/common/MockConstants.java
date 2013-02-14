@@ -29,6 +29,7 @@ public interface MockConstants {
     String CONFIG_DIR = "mock.config.dir";
     String SOURCE_RPMS = "mock.srpms";
     String SOURCE_RPM_DIR = "mock.srpm.dir";
+    String RPM_MACROS = "mock.rpmdefs";
 
     String MOCK_EXECUTABLE = "/usr/bin/mock";
     String DEFAULT_CONFIG_DIR = "/etc/mock";

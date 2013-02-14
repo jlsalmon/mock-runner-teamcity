@@ -44,4 +44,9 @@ public class MockConstantsBean {
     public String getSourceRpmsKey() {
         return MockConstants.SOURCE_RPMS;
     }
+
+    @NotNull
+    public String getRpmMacrosKey() {
+        return MockConstants.RPM_MACROS;
+    }
 }
