@@ -1,7 +1,6 @@
 pre {
     display: block;
     padding: 9.5px;
-    margin: 0 0 10px;
     font-size: 12px;
     line-height: 20px;
     word-break: break-all;
@@ -16,9 +15,6 @@ pre {
     border-radius: 4px;
 }
 
-pre.prettyprint {
-    margin-bottom: 20px;
-}
 
 pre code {
     padding: 0;

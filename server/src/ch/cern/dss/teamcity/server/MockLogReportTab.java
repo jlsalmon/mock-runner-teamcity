@@ -127,13 +127,11 @@ public class MockLogReportTab extends ViewLogTab {
 
             matcher = errorPattern.matcher(line);
             if (matcher.matches()) {
-                Loggers.SERVER.info("Matched error: " + i + ": " + line);
                 selectedLines.put(i, new AbstractMap.SimpleEntry<String, String>("error", strip(line)));
             }
 
             matcher = warningPattern.matcher(line);
             if (matcher.matches()) {
-                Loggers.SERVER.info("Matched warning: " + i + ": " + line);
                 selectedLines.put(i, new AbstractMap.SimpleEntry<String, String>("warning", strip(line)));
             }
         }
@@ -147,7 +145,6 @@ public class MockLogReportTab extends ViewLogTab {
     private Map<Integer, AbstractMap.SimpleEntry<String, String>> buildContext(
             Map<Integer, AbstractMap.SimpleEntry<String, String>> selectedLines, String[] lines) {
 
-        Loggers.SERVER.info("Building context");
         Map<Integer, AbstractMap.SimpleEntry<String, String>> contextLines
                 = new TreeMap<Integer, AbstractMap.SimpleEntry<String, String>>();
         contextLines.putAll(selectedLines);
@@ -161,7 +158,6 @@ public class MockLogReportTab extends ViewLogTab {
 
             for (int i = start; i < end + 1; i++) {
                 if (!selectedLines.containsKey(i)) {
-                    Loggers.SERVER.info("Context line: " + i + ": " + lines[i]);
                     contextLines.put(i, new AbstractMap.SimpleEntry<String, String>("context", strip(lines[i])));
                 }
             }
@@ -173,7 +169,6 @@ public class MockLogReportTab extends ViewLogTab {
     private List<Map<Integer, AbstractMap.SimpleEntry<String, String>>> clusterLines(
             Map<Integer, AbstractMap.SimpleEntry<String, String>> lines) {
 
-        Loggers.SERVER.info("Clustering lines");
         List<Map<Integer, AbstractMap.SimpleEntry<String, String>>> clusters
                 = new ArrayList<Map<Integer, AbstractMap.SimpleEntry<String, String>>>();
         Map<Integer, AbstractMap.SimpleEntry<String, String>> currentCluster = null;
@@ -185,7 +180,6 @@ public class MockLogReportTab extends ViewLogTab {
             if (previous == i - 1) {
                 if (currentCluster != null) {
                     currentCluster.put(i, new AbstractMap.SimpleEntry<String, String>(line.getKey(), line.getValue()));
-                    Loggers.SERVER.info("clustering line " + i + ": " + line.getKey() + " -> " + line.getValue());
                 }
             } else {
                 if (currentCluster != null) {
@@ -193,7 +187,6 @@ public class MockLogReportTab extends ViewLogTab {
                 }
                 currentCluster = new TreeMap<Integer, AbstractMap.SimpleEntry<String, String>>();
                 currentCluster.put(i, new AbstractMap.SimpleEntry<String, String>(line.getKey(), line.getValue()));
-                Loggers.SERVER.info("clustering line " + i + ": " + line.getKey() + " -> " + line.getValue());
             }
             previous = i;
         }

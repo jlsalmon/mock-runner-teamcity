@@ -20,9 +20,9 @@
 
 package ch.cern.dss.teamcity.agent;
 
-import ch.cern.dss.teamcity.common.Util;
-import ch.cern.dss.teamcity.common.SystemCommandResult;
 import ch.cern.dss.teamcity.common.MockConstants;
+import ch.cern.dss.teamcity.common.SystemCommandResult;
+import ch.cern.dss.teamcity.common.Util;
 import com.intellij.openapi.util.text.StringUtil;
 import jetbrains.buildServer.RunBuildException;
 import jetbrains.buildServer.agent.BuildFinishedStatus;
@@ -33,7 +33,9 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 public class MockCallable implements Callable<BuildFinishedStatus> {
@@ -103,7 +105,7 @@ public class MockCallable implements Callable<BuildFinishedStatus> {
 
         // Append RPM macros if we have any
         if (context.getRpmMacros() != null) {
-            command = Util.concatArrays(command, new String[]{context.getRpmMacros().replace("\n", " ")});
+            command = Util.concatArrays(command, processRpmMacros(context.getRpmMacros()));
         }
 
         SystemCommandResult result;
@@ -129,6 +131,26 @@ public class MockCallable implements Callable<BuildFinishedStatus> {
         });
 
         if (files.length <= 0) throw new RunBuildException("Error running mock: RPMs not created");
+    }
+
+    private String[] processRpmMacros(String macros) {
+//        return macros.replaceAll("\n", "")
+//                .replaceAll("\\s+", " ")
+//                .replaceAll("=", " ")
+//                .split("\\s(?=([^\"\']*[\"'][^\"']*[\"'])*[^\"']*$)");
+        List<String> macroList = new ArrayList<String>();
+
+        for (String entry : macros.split("--define=")) {
+            if (entry.length() > 0) {
+                String value = entry.replace("\n", "");
+                value = value.trim();
+                value = value.substring(1, value.length() - 1);
+                macroList.add("--define");
+                macroList.add(value);
+            }
+        }
+
+        return macroList.toArray(new String[macroList.size()]);
     }
 
     private void publishResults() throws IOException {
