@@ -84,6 +84,7 @@ public class MockBuildProcess implements BuildProcess {
         this.isInterrupted = true;
     }
 
+    @NotNull
     @Override
     public BuildFinishedStatus waitFor() throws RunBuildException {
         for (Map.Entry<String, Future<BuildFinishedStatus>> entry : futures.entrySet()) {

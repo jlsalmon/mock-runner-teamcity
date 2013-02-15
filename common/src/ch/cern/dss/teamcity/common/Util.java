@@ -18,12 +18,9 @@
  * along with ACC.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package ch.cern.dss.teamcity.agent.util;
-
-import jetbrains.buildServer.log.Loggers;
+package ch.cern.dss.teamcity.common;
 
 import java.io.*;
-import java.net.URL;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
@@ -32,7 +29,7 @@ import java.util.Arrays;
 /**
  * Useful IO utilities.
  */
-public class IOUtil {
+public class Util {
 
     /**
      * Execute the specified system command.
@@ -55,8 +52,7 @@ public class IOUtil {
 
         String line;
         while ((line = reader.readLine()) != null) {
-            Loggers.AGENT.info(">> " + line);
-            stringBuilder.append(line);
+            stringBuilder.append(line).append("\n");
         }
 
         try {
@@ -68,7 +64,26 @@ public class IOUtil {
         return new SystemCommandResult(process.exitValue(), stringBuilder.toString());
     }
 
-    public static <T> T[] concat(T[] first, T[] second) {
+    /**
+     * Read a file on the local filesystem into a string.
+     *
+     * @param path the path to the file to read
+     *
+     * @return the contents of the file, as a string.
+     * @throws IOException
+     */
+    public static String readFile(String path) throws IOException {
+        FileInputStream stream = new FileInputStream(new File(path));
+        try {
+            FileChannel channel = stream.getChannel();
+            MappedByteBuffer buffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
+            return Charset.defaultCharset().decode(buffer).toString();
+        } finally {
+            stream.close();
+        }
+    }
+
+    public static <T> T[] concatArrays(T[] first, T[] second) {
         T[] result = Arrays.copyOf(first, first.length + second.length);
         System.arraycopy(second, 0, result, first.length, second.length);
         return result;

@@ -35,4 +35,7 @@ public interface MockConstants {
     String DEFAULT_CONFIG_DIR = "/etc/mock";
     String MOCK_CHROOT_DIR = "/var/lib/mock";
     Integer MAX_CONCURRENT_MOCK_BUILDS = 4;
+
+    String TAB_TITLE = "Mock Log Report";
+    String TAB_ID = "mockLogReport";
 }

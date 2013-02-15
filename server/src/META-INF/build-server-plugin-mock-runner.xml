@@ -7,5 +7,6 @@
 
   <bean id="mockRunType" class="ch.cern.dss.teamcity.server.MockRunType"/>
   <bean id="mockConstantsBean" class="ch.cern.dss.teamcity.server.MockConstantsBean"/>
+  <bean id="mockLogReportTab" class="ch.cern.dss.teamcity.server.MockLogReportTab"/>
 
 </beans>

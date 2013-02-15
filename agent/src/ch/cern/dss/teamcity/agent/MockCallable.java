@@ -20,8 +20,8 @@
 
 package ch.cern.dss.teamcity.agent;
 
-import ch.cern.dss.teamcity.agent.util.IOUtil;
-import ch.cern.dss.teamcity.agent.util.SystemCommandResult;
+import ch.cern.dss.teamcity.common.Util;
+import ch.cern.dss.teamcity.common.SystemCommandResult;
 import ch.cern.dss.teamcity.common.MockConstants;
 import com.intellij.openapi.util.text.StringUtil;
 import jetbrains.buildServer.RunBuildException;
@@ -31,6 +31,7 @@ import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.Callable;
@@ -58,6 +59,7 @@ public class MockCallable implements Callable<BuildFinishedStatus> {
             clean();
             rebuild();
             publishResults();
+            writeMetadata();
 
         } catch (Exception e) {
             logger.exception(e);
@@ -79,7 +81,7 @@ public class MockCallable implements Callable<BuildFinishedStatus> {
         SystemCommandResult result;
 
         try {
-            result = IOUtil.runSystemCommand(command);
+            result = Util.runSystemCommand(command);
         } catch (Exception e) {
             throw new RunBuildException("Unable to initialize mock environment", e);
         }
@@ -101,21 +103,32 @@ public class MockCallable implements Callable<BuildFinishedStatus> {
 
         // Append RPM macros if we have any
         if (context.getRpmMacros() != null) {
-            command = IOUtil.concat(command, new String[]{context.getRpmMacros().replace("\n", " ")});
+            command = Util.concatArrays(command, new String[]{context.getRpmMacros().replace("\n", " ")});
         }
 
         SystemCommandResult result;
         logger.message("Running mock: " + Arrays.toString(command));
 
         try {
-            result = IOUtil.runSystemCommand(command);
+            result = Util.runSystemCommand(command);
         } catch (Exception e) {
             throw new RunBuildException("Error running mock", e);
         }
 
         if (result.getReturnCode() != 0) {
-            throw new RunBuildException("Error running mock: " + result.getOutput());
+            logger.warning("Mock exited with nozero code (" + result.getReturnCode() + "): " + result.getOutput());
         }
+
+        // Check if rpms were created
+        File rpmDirectory = new File(MockConstants.MOCK_CHROOT_DIR, context.getChrootName() + "/result");
+        File[] files = rpmDirectory.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File directory, String name) {
+                return name.endsWith(".rpm");
+            }
+        });
+
+        if (files.length <= 0) throw new RunBuildException("Error running mock: RPMs not created");
     }
 
     private void publishResults() throws IOException {
@@ -147,8 +160,9 @@ public class MockCallable implements Callable<BuildFinishedStatus> {
                 FileUtils.copyFile(file, new File(destinationDirectory, file.getName()));
             }
         }
+    }
 
-        // Write metadata
-        // Generate log report
+    private void writeMetadata() {
+
     }
 }

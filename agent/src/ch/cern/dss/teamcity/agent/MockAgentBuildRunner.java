@@ -33,15 +33,13 @@ import java.util.*;
 
 public class MockAgentBuildRunner implements AgentBuildRunner, AgentBuildRunnerInfo {
 
-    private BuildProgressLogger logger;
-    private Map<String, String> runnerParameters;
-
+    @NotNull
     @Override
     public BuildProcess createBuildProcess(@NotNull AgentRunningBuild agentRunningBuild,
                                            @NotNull BuildRunnerContext buildRunnerContext) throws RunBuildException {
 
-        this.runnerParameters = buildRunnerContext.getRunnerParameters();
-        this.logger = agentRunningBuild.getBuildLogger();
+        Map<String, String> runnerParameters = buildRunnerContext.getRunnerParameters();
+        BuildProgressLogger logger = agentRunningBuild.getBuildLogger();
 
         // Append config extension if necessary
         List<String> chrootNamesPattern = FileUtil.splitStringOnWhitespace(runnerParameters.get(MockConstants.CHROOTS));
@@ -68,15 +66,17 @@ public class MockAgentBuildRunner implements AgentBuildRunner, AgentBuildRunnerI
         logger.message("Building packages: " + Arrays.toString(srpms.toArray()));
 
         // Return custom build process
-        return new MockBuildProcess(chrootNames, srpms, runnerParameters,
-                agentRunningBuild.getArtifactsPaths(), logger);
+        return new MockBuildProcess(chrootNames, srpms, runnerParameters, agentRunningBuild.getArtifactsPaths(),
+                logger);
     }
 
+    @NotNull
     @Override
     public AgentBuildRunnerInfo getRunnerInfo() {
         return this;
     }
 
+    @NotNull
     @Override
     public String getType() {
         return MockConstants.TYPE;
@@ -84,6 +84,6 @@ public class MockAgentBuildRunner implements AgentBuildRunner, AgentBuildRunnerI
 
     @Override
     public boolean canRun(@NotNull BuildAgentConfiguration buildAgentConfiguration) {
-        return true;
+        return new File(MockConstants.MOCK_EXECUTABLE).exists();
     }
 }
