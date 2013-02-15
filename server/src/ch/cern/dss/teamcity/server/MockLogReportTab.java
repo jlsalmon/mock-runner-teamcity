@@ -52,7 +52,11 @@ public class MockLogReportTab extends ViewLogTab {
                              @NotNull HttpServletRequest request,
                              @NotNull SBuild build) {
         try {
-            model.put("reports", getReports(build));
+            Map<String, List<Map<Integer, AbstractMap.SimpleEntry<String, String>>>> reports = getReports(build);
+            Map<String, AbstractMap.SimpleEntry<Integer, Integer>> reportSummaries = getReportSummaries(reports);
+
+            model.put("reports", reports);
+            model.put("reportSummaries", reportSummaries);
         } catch (IOException e) {
             Loggers.SERVER.error("Error filling report tab model: " + e.getMessage());
         }
@@ -90,7 +94,7 @@ public class MockLogReportTab extends ViewLogTab {
 
             if (logDirectory != null && logDirectory.length > 0) {
                 File buildLogFile = new File(logDirectory[0], "build.log");
-                logFiles.put(buildLogFile.getAbsolutePath(), Util.readFile(buildLogFile.getAbsolutePath()));
+                logFiles.put(chrootDirectory.getName(), Util.readFile(buildLogFile.getAbsolutePath()));
             }
         }
 
@@ -112,8 +116,8 @@ public class MockLogReportTab extends ViewLogTab {
             return emptyList;
         }
 
-        Pattern errorPattern = Pattern.compile("\\W*error\\W.*", Pattern.CASE_INSENSITIVE|Pattern.MULTILINE);
-        Pattern warningPattern = Pattern.compile("\\W*warning\\W.*", Pattern.CASE_INSENSITIVE|Pattern.MULTILINE);
+        Pattern errorPattern = Pattern.compile("\\W*error\\W.*", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+        Pattern warningPattern = Pattern.compile("\\W*warning\\W.*", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
         Matcher matcher;
 
         String[] lines = fullLog.split("\n");
@@ -199,6 +203,35 @@ public class MockLogReportTab extends ViewLogTab {
         }
 
         return clusters;
+    }
+
+    private Map<String, AbstractMap.SimpleEntry<Integer, Integer>> getReportSummaries(
+            Map<String, List<Map<Integer, AbstractMap.SimpleEntry<String, String>>>> reports) throws IOException {
+
+        Map<String, AbstractMap.SimpleEntry<Integer, Integer>> summaries
+                = new TreeMap<String, AbstractMap.SimpleEntry<Integer, Integer>>();
+
+        for (Map.Entry<String, List<Map<Integer, AbstractMap.SimpleEntry<String, String>>>> e : reports.entrySet()) {
+            summaries.put(e.getKey(), processSummary(e.getValue()));
+        }
+
+        return summaries;
+    }
+
+    private AbstractMap.SimpleEntry<Integer, Integer> processSummary(
+            List<Map<Integer, AbstractMap.SimpleEntry<String, String>>> clusters) {
+
+        Integer errors = 0;
+        Integer warnings = 0;
+
+        for (Map<Integer, AbstractMap.SimpleEntry<String, String>> cluster : clusters) {
+            for (AbstractMap.SimpleEntry<String, String> entry : cluster.values()) {
+                if (entry.getKey().equals("error")) errors++;
+                else if (entry.getKey().equals("warning")) warnings++;
+            }
+        }
+
+        return new AbstractMap.SimpleEntry<Integer, Integer>(errors, warnings);
     }
 
     private String strip(String string) {

@@ -23,10 +23,12 @@
 
 <jsp:useBean id="constants" class="ch.cern.dss.teamcity.server.MockConstantsBean"/>
 <jsp:useBean id="reports" type="java.util.HashMap" scope="request"/>
+<jsp:useBean id="reportSummaries" type="java.util.TreeMap" scope="request"/>
 
 <link rel="stylesheet" href="<c:url value="${teamcityPluginResourcesPath}css/custom.css"/>"/>
 
 <script src="${teamcityPluginResourcesPath}js/prettify.js"></script>
+<script src="${teamcityPluginResourcesPath}js/bootstrap-collapse.js"></script>
 <script>
     jQuery(document).ready(function () {
         prettyPrint();
@@ -35,21 +37,44 @@
 
 <div>
     <c:forEach var="report" items="${reports}">
-        <h3>
-                ${report.key}
-        </h3>
+        <c:set var="reportName" value="${report.key}"/>
 
-            <c:forEach var="cluster" items="${report.value}">
+        <div class="accordion" id="accordion">
+            <div class="accordion-group">
+                <div class="accordion-heading">
+                    <h2 class="accordion-toggle">chroot: ${reportName}</h2>
 
-                <c:forEach var="entry" items="${cluster}" begin="0" end="0" step="1">
-                    <c:set var="beginLine" value="${entry.key}"/>
-                </c:forEach>
+                    <span class="accordion-toggle">
+                        <span class="error-summary">Errors: <strong>${reportSummaries[reportName].key}</strong></span>
+                        <span class="warning-summary">Warnings: <strong>${reportSummaries[reportName].value}</strong></span>
+                    </span>
 
-                <pre class="prettyprint linenums:${beginLine}"
-                    ><c:forEach var="lineEntry" items="${cluster}">
-<span class="${lineEntry.value.key}">${lineEntry.value.value}</span></c:forEach
-                ></pre>
-            </c:forEach>
+                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#${reportName}">
+                        &raquo; Click to view report
+                    </a>
+                </div>
+                <div id="${reportName}" class="accordion-body collapse">
+                    <div class="accordion-inner">
 
+                        <c:if test="${empty report.value}">
+                            <p>Nothing suspicious found</p>
+                        </c:if>
+
+                        <c:forEach var="cluster" items="${report.value}">
+
+                            <c:forEach var="entry" items="${cluster}" begin="0" end="0" step="1">
+                                <c:set var="beginLine" value="${entry.key}"/>
+                            </c:forEach>
+
+                            <pre class="prettyprint linenums:${beginLine} lang-bsh"
+                                ><c:forEach var="lineEntry" items="${cluster}">
+<span class="${lineEntry.value.key}">${lineEntry.value.value}</span
+                                ></c:forEach
+                            ></pre>
+                        </c:forEach>
+                    </div>
+                </div>
+            </div>
+        </div>
     </c:forEach>
 </div>

@@ -2,7 +2,7 @@ pre {
     display: block;
     padding: 9.5px;
     margin: 0 0 10px;
-    font-size: 13px;
+    font-size: 12px;
     line-height: 20px;
     word-break: break-all;
     word-wrap: break-word;
@@ -33,7 +33,7 @@ pre code {
 .lit { color: #195f91; }
 .pun, .opn, .clo { color: #93a1a1; }
 .fun { color: #dc322f; }
-.str, .atv { color: #D14; }
+.str, .atv { color: #00992f; }
 .kwd, .prettyprint .tag { color: #1e347b; }
 .typ, .atn, .dec, .var { color: teal; }
 .pln { color: #48484c; }
@@ -66,10 +66,81 @@ blockquote {
 }
 
 .error {
-    background-color: #cd5c5c;
+    display: block;
+    background-color: #fad9da;
     margin-left: 0px !important;
+    -webkit-box-shadow: -7px 0 0 0 #fad9da, -8px 0 0 0 #ececf0, -58px 0 0 0 #fad9da, 18px 0px 0px 0px #fad9da;
+    -moz-box-shadow: -7px 0 0 0 #fad9da, -8px 0 0 0 #ececf0, -58px 0 0 0 #fad9da, 18px 0px 0px 0px #fad9da;
+    box-shadow: -7px 0 0 0 #fad9da, -8px 0 0 0 #ececf0, -58px 0 0 0 #fad9da, 18px 0px 0px 0px #fad9da;
+}
+
+.error-summary {
+    display: block;
+    margin-left: 20px;
+    padding-left: 5px;
+    -webkit-box-shadow: -18px 0 0 -1px #fad9da;
+    -moz-box-shadow: -18px 0 0 -1px #fad9da;
+    box-shadow: -18px 0 0 -1px #fad9da;
 }
 
 .warning {
-    background-color: orange;
+    display: block;
+    background-color: #fde3c7;
+    margin-left: 0px !important;
+    -webkit-box-shadow: -7px 0 0 0 #fde3c7, -8px 0 0 0 #ececf0, -58px 0 0 0 #fde3c7, 18px 0px 0px 0px #fde3c7;
+    -moz-box-shadow: -7px 0 0 0 #fde3c7, -8px 0 0 0 #ececf0, -58px 0 0 0 #fde3c7, 18px 0px 0px 0px #fde3c7;
+    box-shadow: -7px 0 0 0 #fde3c7, -8px 0 0 0 #ececf0, -58px 0 0 0 #fde3c7, 18px 0px 0px 0px #fde3c7;
+}
+
+.warning-summary {
+    display: block;
+    margin-left: 20px;
+    padding-left: 5px;
+    -webkit-box-shadow: -18px 0 0 -1px #fde3c7;
+    -moz-box-shadow: -18px 0 0 -1px #fde3c7;
+    box-shadow: -18px 0 0 -1px #fde3c7;
+}
+
+.accordion {
+    margin-bottom: 10px;
+}
+
+.accordion-group {
+    margin-bottom: 2px;
+    border: 1px solid #e5e5e5;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+}
+
+.accordion-heading {
+    border-bottom: 0;
+}
+
+.accordion-heading .accordion-toggle {
+    display: block;
+    padding: 8px 15px;
+}
+
+.accordion-toggle {
+    cursor: pointer;
+}
+
+.accordion-inner {
+    padding: 9px 15px;
+    border-top: 1px solid #e5e5e5;
+}
+
+.collapse {
+    position: relative;
+    height: 0;
+    overflow: hidden;
+    -webkit-transition: height 0.35s ease;
+    -moz-transition: height 0.35s ease;
+    -o-transition: height 0.35s ease;
+    transition: height 0.35s ease;
+}
+
+.collapse.in {
+    height: auto;
 }
