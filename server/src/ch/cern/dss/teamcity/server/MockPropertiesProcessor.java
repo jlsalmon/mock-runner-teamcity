@@ -30,6 +30,15 @@ import java.util.Collection;
 import java.util.Map;
 
 public class MockPropertiesProcessor implements PropertiesProcessor {
+
+    /**
+     * Validate the properties (settings) that the user specified in the web UI.
+     *
+     * @param properties the map of properties passed from the web UI form.
+     *
+     * @return a collection of InvalidProperties. Each invalid property has a key (which matches that given as the name
+     *         attribute of the corresponding web UI element) and a message describing the reason for invalidity.
+     */
     @Override
     public Collection<InvalidProperty> process(Map<String, String> properties) {
         final Collection<InvalidProperty> result = new ArrayList<InvalidProperty>();

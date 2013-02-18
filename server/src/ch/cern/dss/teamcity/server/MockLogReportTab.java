@@ -40,6 +40,11 @@ import java.util.regex.Pattern;
 
 public class MockLogReportTab extends ViewLogTab {
 
+    /**
+     * @param pagePlaces       the object with which we register this page extension.
+     * @param server           the build server object.
+     * @param pluginDescriptor the plugin descriptor used to get base path to JSP files.
+     */
     public MockLogReportTab(@NotNull PagePlaces pagePlaces,
                             @NotNull SBuildServer server,
                             @NotNull PluginDescriptor pluginDescriptor) {
@@ -47,6 +52,13 @@ public class MockLogReportTab extends ViewLogTab {
         setIncludeUrl(pluginDescriptor.getPluginResourcesPath() + "mockLogReport.jsp");
     }
 
+    /**
+     * Called when the user clicks on the custom report tab.
+     *
+     * @param model   the map of data objects that will be passed to the JSP page.
+     * @param request the HTTP request object.
+     * @param build   the current build.
+     */
     @Override
     protected void fillModel(@NotNull Map<String, Object> model,
                              @NotNull HttpServletRequest request,
@@ -62,6 +74,26 @@ public class MockLogReportTab extends ViewLogTab {
         }
     }
 
+    /**
+     * Get the processed reports for each chroot, in a format easily parsable within JSP.
+     * <p/>
+     * Returns a data structure that looks like this:
+     * <p/>
+     * {'chroot_name' : [ {lineno, {'annotation_type' : 'line_content'}} ]}
+     * <p/>
+     * For example:
+     * <p/>
+     * {'epel-6-i386' : [
+     * {124, {'context' : 'foo'}}
+     * {125, {'error' : 'Error doing bar'}
+     * {126, {'context' : 'baz'}}
+     * ]}
+     *
+     * @param build the current build being viewed.
+     *
+     * @return the data structure holding the processed report information.
+     * @throws IOException
+     */
     private Map<String, List<Map<Integer, AbstractMap.SimpleEntry<String, String>>>> getReports(SBuild build)
             throws IOException {
         Map<String, List<Map<Integer, AbstractMap.SimpleEntry<String, String>>>> reports
@@ -74,6 +106,14 @@ public class MockLogReportTab extends ViewLogTab {
         return reports;
     }
 
+    /**
+     * Get a list of all mock build log files within the artifacts of this build.
+     *
+     * @param build the current build being viewed.
+     *
+     * @return a map of chroot names : build log files.
+     * @throws IOException
+     */
     private Map<String, String> getLogFiles(SBuild build) throws IOException {
         Map<String, String> logFiles = new HashMap<String, String>();
 
@@ -101,6 +141,13 @@ public class MockLogReportTab extends ViewLogTab {
         return logFiles;
     }
 
+    /**
+     * Parse the given log file and look for errors and warnings.
+     *
+     * @param fullLog the entire log file to be processed.
+     *
+     * @return list of mappings to the line number and line text/annotation type.
+     */
     private List<Map<Integer, AbstractMap.SimpleEntry<String, String>>> processLogFile(String fullLog) {
         Map<Integer, AbstractMap.SimpleEntry<String, String>> selectedLines
                 = new TreeMap<Integer, AbstractMap.SimpleEntry<String, String>>();
@@ -142,6 +189,15 @@ public class MockLogReportTab extends ViewLogTab {
         return clusters;
     }
 
+    /**
+     * Retrieve the two lines above and below the selected error/warning lines, to build a context around the error for
+     * ease of debugging.
+     *
+     * @param selectedLines the lines identified as errors/warnings.
+     * @param lines         the entire log file split into lines.
+     *
+     * @return map containing the originally selected lines, plus the context lines, sorted by line number.
+     */
     private Map<Integer, AbstractMap.SimpleEntry<String, String>> buildContext(
             Map<Integer, AbstractMap.SimpleEntry<String, String>> selectedLines, String[] lines) {
 
@@ -166,6 +222,13 @@ public class MockLogReportTab extends ViewLogTab {
         return contextLines;
     }
 
+    /**
+     * Cluster each set of error/warning lines with the corresponding context lines into a list of maps.
+     *
+     * @param lines all the selected error/warning/context lines.
+     *
+     * @return list of line clusters.
+     */
     private List<Map<Integer, AbstractMap.SimpleEntry<String, String>>> clusterLines(
             Map<Integer, AbstractMap.SimpleEntry<String, String>> lines) {
 
@@ -198,6 +261,14 @@ public class MockLogReportTab extends ViewLogTab {
         return clusters;
     }
 
+    /**
+     * Calculate a summary for each chroot (number of warnings/errors).
+     *
+     * @param reports the processed report line clusters.
+     *
+     * @return a map of {'chroot_name' : { num_errors : num_warnings }}
+     * @throws IOException
+     */
     private Map<String, AbstractMap.SimpleEntry<Integer, Integer>> getReportSummaries(
             Map<String, List<Map<Integer, AbstractMap.SimpleEntry<String, String>>>> reports) throws IOException {
 
@@ -211,6 +282,13 @@ public class MockLogReportTab extends ViewLogTab {
         return summaries;
     }
 
+    /**
+     * Calculate the number of errors/warnings for the given line cluster.
+     *
+     * @param clusters the lsit of all clusters
+     *
+     * @return a pair containing { num_errors : num_warnings }
+     */
     private AbstractMap.SimpleEntry<Integer, Integer> processSummary(
             List<Map<Integer, AbstractMap.SimpleEntry<String, String>>> clusters) {
 
@@ -231,6 +309,14 @@ public class MockLogReportTab extends ViewLogTab {
         return string.replace("\n", "");
     }
 
+    /**
+     * Perform checks to see whether this page is available to be displayed or not.
+     *
+     * @param request the HTTP request object.
+     * @param build   the current build.
+     *
+     * @return true if the page is available, false otherwise.
+     */
     @Override
     protected boolean isAvailable(@NotNull HttpServletRequest request, @NotNull SBuild build) {
         try {

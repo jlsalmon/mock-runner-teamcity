@@ -34,42 +34,71 @@ public class MockRunType extends RunType {
 
     private final PluginDescriptor pluginDescriptor;
 
+    /**
+     * Constructor. Uses spring autowiring feature to request objects from some spring bean in the TeamCity API and
+     * inject them into this constructor.
+     *
+     * @param runTypeRegistry  used to register this run type in the registry.
+     * @param pluginDescriptor used to get the plugin resources path, i.e. path to JSP pages.
+     */
     public MockRunType(@NotNull final RunTypeRegistry runTypeRegistry,
                        @NotNull final PluginDescriptor pluginDescriptor) {
         this.pluginDescriptor = pluginDescriptor;
         runTypeRegistry.registerRunType(this);
     }
 
+    /**
+     * @return the unique identifier string of this run type. Must be equivalent to the type reported by the agent-side
+     *         part of the plugin.
+     */
     @Override
     public String getType() {
         return MockConstants.TYPE;
     }
 
+    /**
+     * @return the user-readable name of this plugin.
+     */
     @Override
     public String getDisplayName() {
         return MockConstants.DISPLAY_NAME;
     }
 
+    /**
+     * @return the user-readable description of this plugin.
+     */
     @Override
     public String getDescription() {
         return MockConstants.DESCRIPTION;
     }
 
+    /**
+     * @return a PropertiesProcessor object, used to validate the parameters given in the web UI.
+     */
     @Override
     public PropertiesProcessor getRunnerPropertiesProcessor() {
         return new MockPropertiesProcessor();
     }
 
+    /**
+     * @return the absolute path to the JSP file used to edit the runner parameters.
+     */
     @Override
     public String getEditRunnerParamsJspFilePath() {
         return this.pluginDescriptor.getPluginResourcesPath() + "editMockRunner.jsp";
     }
 
+    /**
+     * @return the absolute path to the JSP file used to view the runner parameters.
+     */
     @Override
     public String getViewRunnerParamsJspFilePath() {
         return this.pluginDescriptor.getPluginResourcesPath() + "viewMockRunner.jsp";
     }
 
+    /**
+     * @return the map of default parameters to the web UI form (not needed here).
+     */
     @Override
     public Map<String, String> getDefaultRunnerProperties() {
         Map<String, String> defaults = new HashMap<String, String>();
