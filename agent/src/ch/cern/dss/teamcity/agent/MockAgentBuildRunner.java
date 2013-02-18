@@ -31,15 +31,28 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.util.*;
 
+/**
+ * AgentBuildRunner has been extended here, instead of implementing CommandLineBuildServiceFactory, because of the need
+ * to run multiple builds inside separate threads.
+ */
 public class MockAgentBuildRunner implements AgentBuildRunner, AgentBuildRunnerInfo {
 
+    /**
+     * Create the BuildProcess extension that will be actually run as this build stage.
+     *
+     * @param build   the currently running build.
+     * @param context this build runner's context parameters.
+     *
+     * @return an instance of our custom BuildProcess extension.
+     * @throws RunBuildException
+     */
     @NotNull
     @Override
-    public BuildProcess createBuildProcess(@NotNull AgentRunningBuild agentRunningBuild,
-                                           @NotNull BuildRunnerContext buildRunnerContext) throws RunBuildException {
+    public BuildProcess createBuildProcess(@NotNull AgentRunningBuild build,
+                                           @NotNull BuildRunnerContext context) throws RunBuildException {
 
-        Map<String, String> runnerParameters = buildRunnerContext.getRunnerParameters();
-        BuildProgressLogger logger = agentRunningBuild.getBuildLogger();
+        Map<String, String> runnerParameters = context.getRunnerParameters();
+        BuildProgressLogger logger = build.getBuildLogger();
 
         // Append config extension if necessary
         List<String> chrootNamesPattern = FileUtil.splitStringOnWhitespace(runnerParameters.get(MockConstants.CHROOTS));
@@ -66,24 +79,37 @@ public class MockAgentBuildRunner implements AgentBuildRunner, AgentBuildRunnerI
         logger.message("Building packages: " + Arrays.toString(srpms.toArray()));
 
         // Return custom build process
-        return new MockBuildProcess(chrootNames, srpms, runnerParameters, agentRunningBuild.getArtifactsPaths(),
+        return new MockBuildProcess(chrootNames, srpms, runnerParameters, build.getArtifactsPaths(),
                 logger);
     }
 
+    /**
+     * @return ourselves, we implement the interface here.
+     */
     @NotNull
     @Override
     public AgentBuildRunnerInfo getRunnerInfo() {
         return this;
     }
 
+    /**
+     * @return the unique type of this agent plugin.
+     */
     @NotNull
     @Override
     public String getType() {
         return MockConstants.TYPE;
     }
 
+    /**
+     * Perform checks to determine whether this build stage can be run on this agent.
+     *
+     * @param configuration
+     *
+     * @return false if the agent cannot run this stage, true otherwise.
+     */
     @Override
-    public boolean canRun(@NotNull BuildAgentConfiguration buildAgentConfiguration) {
+    public boolean canRun(@NotNull BuildAgentConfiguration configuration) {
         return new File(MockConstants.MOCK_EXECUTABLE).exists();
     }
 }

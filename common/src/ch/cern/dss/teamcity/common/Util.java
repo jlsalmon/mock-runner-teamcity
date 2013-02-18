@@ -83,6 +83,15 @@ public class Util {
         }
     }
 
+    /**
+     * Concatenate two primitive arrays or arbitrary type.
+     *
+     * @param first  the first array.
+     * @param second the second array.
+     * @param <T>    the generic type of the two arrays. They must both share the same type.
+     *
+     * @return the concatenated array.
+     */
     public static <T> T[] concatArrays(T[] first, T[] second) {
         T[] result = Arrays.copyOf(first, first.length + second.length);
         System.arraycopy(second, 0, result, first.length, second.length);

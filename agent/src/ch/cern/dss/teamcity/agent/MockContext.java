@@ -26,6 +26,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Utility class to hold context for an individual mock chroot build thread object (MockCallable).
+ */
 public class MockContext {
     private final String chrootName;
     private final List<String> srpms;

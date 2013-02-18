@@ -32,6 +32,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
 
+/**
+ * Custom build process implementation.
+ */
 public class MockBuildProcess implements BuildProcess {
 
     private final List<String> chrootNames;
@@ -43,6 +46,14 @@ public class MockBuildProcess implements BuildProcess {
     private boolean isInterrupted = false;
     private boolean isFinished = false;
 
+    /**
+     *
+     * @param chrootNames
+     * @param srpms
+     * @param runnerParameters
+     * @param artifactPaths
+     * @param logger
+     */
     public MockBuildProcess(@NotNull List<String> chrootNames,
                             @NotNull List<String> srpms,
                             @NotNull Map<String, String> runnerParameters,
@@ -56,6 +67,10 @@ public class MockBuildProcess implements BuildProcess {
         this.futures = new HashMap<String, Future<BuildFinishedStatus>>();
     }
 
+    /**
+     *
+     * @throws RunBuildException
+     */
     @Override
     public void start() throws RunBuildException {
         ExecutorService executor = Executors.newFixedThreadPool(MockConstants.MAX_CONCURRENT_MOCK_BUILDS);
@@ -69,21 +84,37 @@ public class MockBuildProcess implements BuildProcess {
         }
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public boolean isInterrupted() {
         return this.isInterrupted;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public boolean isFinished() {
         return this.isFinished;
     }
 
+    /**
+     *
+     */
     @Override
     public void interrupt() {
         this.isInterrupted = true;
     }
 
+    /**
+     *
+     * @return
+     * @throws RunBuildException
+     */
     @NotNull
     @Override
     public BuildFinishedStatus waitFor() throws RunBuildException {

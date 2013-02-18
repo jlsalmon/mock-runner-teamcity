@@ -98,9 +98,9 @@ public class FileUtil {
     }
 
     /**
-     * @param stringToSplit
+     * @param stringToSplit the string to split on whitespace.
      *
-     * @return
+     * @return the split string as a list.
      */
     public static List<String> splitStringOnWhitespace(String stringToSplit) {
         String[] array = stringToSplit.split("\\s+");

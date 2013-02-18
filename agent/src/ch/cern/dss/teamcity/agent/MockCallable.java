@@ -38,16 +38,29 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+/**
+ * Callable (thread) implementation in which to run a single mock build.
+ */
 public class MockCallable implements Callable<BuildFinishedStatus> {
 
     private final MockContext context;
     private final BuildProgressLogger logger;
 
+    /**
+     * @param context the context utility class.
+     * @param logger  the build progress logger.
+     */
     public MockCallable(@NotNull MockContext context, @NotNull BuildProgressLogger logger) {
         this.context = context;
         this.logger = logger;
     }
 
+    /**
+     * Thread entry point.
+     *
+     * @return enum constant representing the exit state of this thread.
+     * @throws RunBuildException
+     */
     @Override
     public BuildFinishedStatus call() throws RunBuildException {
 
@@ -73,6 +86,8 @@ public class MockCallable implements Callable<BuildFinishedStatus> {
 
     /**
      * Initialize an individual chroot environment with mock.
+     *
+     * @throws RunBuildException
      */
     private void initializeChrootEnvironment() throws RunBuildException {
         logger.message("Initializing mock environment: " + context.getChrootName());
@@ -93,10 +108,20 @@ public class MockCallable implements Callable<BuildFinishedStatus> {
         }
     }
 
+    /**
+     * Cleanup old build results.
+     *
+     * @throws IOException
+     */
     private void clean() throws IOException {
         FileUtils.deleteDirectory(new File(MockConstants.MOCK_CHROOT_DIR, context.getChrootName() + "/result"));
     }
 
+    /**
+     * Run the actual mock build.
+     *
+     * @throws RunBuildException
+     */
     private void rebuild() throws RunBuildException {
         String[] command = {MockConstants.MOCK_EXECUTABLE,
                 "--rebuild", "-r", context.getChrootName(),
@@ -133,11 +158,14 @@ public class MockCallable implements Callable<BuildFinishedStatus> {
         if (files.length <= 0) throw new RunBuildException("Error running mock: RPMs not created");
     }
 
+    /**
+     * Process each user-defined RPM macro into a command-line ready state.
+     *
+     * @param macros the user-defined macro string.
+     *
+     * @return the processed macros.
+     */
     private String[] processRpmMacros(String macros) {
-//        return macros.replaceAll("\n", "")
-//                .replaceAll("\\s+", " ")
-//                .replaceAll("=", " ")
-//                .split("\\s(?=([^\"\']*[\"'][^\"']*[\"'])*[^\"']*$)");
         List<String> macroList = new ArrayList<String>();
 
         for (String entry : macros.split("--define=")) {
@@ -153,6 +181,11 @@ public class MockCallable implements Callable<BuildFinishedStatus> {
         return macroList.toArray(new String[macroList.size()]);
     }
 
+    /**
+     * Copy the build results and the logs to the artifacts directory.
+     *
+     * @throws IOException
+     */
     private void publishResults() throws IOException {
         // Make sure the results (artifacts) directory exists
         if (!new File(context.getArtifactsPath()).exists()) {
@@ -185,6 +218,6 @@ public class MockCallable implements Callable<BuildFinishedStatus> {
     }
 
     private void writeMetadata() {
-
+        // TODO
     }
 }
