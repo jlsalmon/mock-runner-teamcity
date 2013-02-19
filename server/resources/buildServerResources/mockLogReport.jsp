@@ -22,8 +22,7 @@
 <%@ taglib prefix="bs" tagdir="/WEB-INF/tags" %>
 
 <jsp:useBean id="constants" class="ch.cern.dss.teamcity.server.MockConstantsBean"/>
-<jsp:useBean id="reports" type="java.util.HashMap" scope="request"/>
-<jsp:useBean id="reportSummaries" type="java.util.TreeMap" scope="request"/>
+<jsp:useBean id="reports" type="java.util.List" scope="request"/>
 
 <link rel="stylesheet" href="<c:url value="${teamcityPluginResourcesPath}css/custom.css"/>"/>
 
@@ -37,41 +36,46 @@
 
 <div>
     <c:forEach var="report" items="${reports}">
-        <c:set var="reportName" value="${report.key}"/>
 
         <div class="accordion" id="accordion">
             <div class="accordion-group">
                 <div class="accordion-heading">
-                    <h2 class="accordion-toggle">chroot: ${reportName}</h2>
+                    <h2 class="accordion-toggle">chroot: ${report.name}</h2>
 
                     <span class="accordion-toggle">
-                        <span class="error-summary">Errors: <strong>${reportSummaries[reportName].key}</strong></span>
-                        <span class="warning-summary">Warnings: <strong>${reportSummaries[reportName].value}</strong></span>
+                        <span class="error-summary">Errors: <strong>${report.errors}</strong></span>
+                        <span class="warning-summary">Warnings: <strong>${report.warnings}</strong></span>
                     </span>
 
-                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#${reportName}">
+                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#${report.name}">
                         &raquo; Click to view report
                     </a>
                 </div>
-                <div id="${reportName}" class="accordion-body collapse">
+                <div id="${report.name}" class="accordion-body collapse">
                     <div class="accordion-inner">
 
-                        <c:if test="${empty report.value}">
-                            <p>Nothing suspicious found</p>
-                        </c:if>
+                        <c:forEach var="log" items="${report.logs}">
 
-                        <c:forEach var="cluster" items="${report.value}">
+                            <strong>${log.key}</strong>
+                            <c:if test="${empty log.value}">
+<pre class="prettyprint">Nothing suspicious found</pre>
+                            </c:if>
 
-                            <c:forEach var="entry" items="${cluster}" begin="0" end="0" step="1">
-                                <c:set var="beginLine" value="${entry.key}"/>
+                            <c:forEach var="cluster" items="${log.value}">
+
+                                <c:forEach var="entry" items="${cluster}" begin="0" end="0" step="1">
+                                    <c:set var="beginLine" value="${entry.key}"/>
+                                </c:forEach>
+
+                                <pre class="prettyprint linenums:${beginLine} lang-bsh"
+                                    ><c:forEach var="lineEntry" items="${cluster}">
+<span class="${lineEntry.value.key}">${lineEntry.value.value}</span
+                                    ></c:forEach
+                                ></pre>
                             </c:forEach>
 
-                            <pre class="prettyprint linenums:${beginLine} lang-bsh"
-                                ><c:forEach var="lineEntry" items="${cluster}">
-<span class="${lineEntry.value.key}">${lineEntry.value.value}</span
-                                ></c:forEach
-                            ></pre>
                         </c:forEach>
+
                     </div>
                 </div>
             </div>
