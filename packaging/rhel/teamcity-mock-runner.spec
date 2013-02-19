@@ -2,7 +2,7 @@
 
 Summary:        TeamCity plugin for building RPMs using Mock
 Name:           teamcity-mock-runner
-Version:        0.1
+Version:        0.2
 Release:        1%{?dist}
 Group:          Development/Tools/Other
 Source:         %{name}-%{version}.tar.gz
