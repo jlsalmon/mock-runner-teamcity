@@ -1,7 +1,7 @@
 %global plugindir   /var/teamcity/.BuildServer/plugins
 
 Summary:        TeamCity plugin for building RPMs using Mock
-Name:           mock-runner-teamcity
+Name:           teamcity-mock-runner
 Version:        0.1
 Release:        1%{?dist}
 Group:          Development/Tools/Other

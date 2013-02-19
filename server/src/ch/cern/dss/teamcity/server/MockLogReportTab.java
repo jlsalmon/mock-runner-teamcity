@@ -124,17 +124,19 @@ public class MockLogReportTab extends ViewLogTab {
             }
         });
 
-        for (File chrootDirectory : chrootDirectories) {
-            File[] logDirectory = chrootDirectory.listFiles(new FilenameFilter() {
-                @Override
-                public boolean accept(File dir, String name) {
-                    return new File(dir, name).isDirectory() && name.equals("logs");
-                }
-            });
+        if (chrootDirectories != null && chrootDirectories.length > 0) {
+            for (File chrootDirectory : chrootDirectories) {
+                File[] logDirectory = chrootDirectory.listFiles(new FilenameFilter() {
+                    @Override
+                    public boolean accept(File dir, String name) {
+                        return new File(dir, name).isDirectory() && name.equals("logs");
+                    }
+                });
 
-            if (logDirectory != null && logDirectory.length > 0) {
-                File buildLogFile = new File(logDirectory[0], "build.log");
-                logFiles.put(chrootDirectory.getName(), Util.readFile(buildLogFile.getAbsolutePath()));
+                if (logDirectory != null && logDirectory.length > 0) {
+                    File buildLogFile = new File(logDirectory[0], "build.log");
+                    logFiles.put(chrootDirectory.getName(), Util.readFile(buildLogFile.getAbsolutePath()));
+                }
             }
         }
 
