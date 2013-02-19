@@ -21,6 +21,8 @@
 package ch.cern.dss.teamcity.agent;
 
 import ch.cern.dss.teamcity.common.MockConstants;
+import jetbrains.buildServer.agent.BuildProgressLogger;
+import jetbrains.buildServer.log.Loggers;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -33,14 +35,17 @@ public class MockContext {
     private final String chrootName;
     private final List<String> srpms;
     private final Map<String, String> runnerParameters;
+    private final Map<String, String> environmentVariables;
     private final String artifactsPath;
 
     public MockContext(@NotNull String chrootName,
                        @NotNull List<String> srpms,
                        @NotNull Map<String, String> runnerParameters,
-                       @NotNull String artifactsPath) {
+                       @NotNull String artifactsPath,
+                       @NotNull Map<String, String> environmentVariables) {
         this.chrootName = chrootName;
         this.runnerParameters = runnerParameters;
+        this.environmentVariables = environmentVariables;
         this.srpms = srpms;
         this.artifactsPath = artifactsPath;
     }
@@ -62,6 +67,9 @@ public class MockContext {
     }
 
     public String getRpmMacros() {
-        return runnerParameters.get(MockConstants.RPM_MACROS);
+        // Environment variable can override runner params
+        return (environmentVariables.containsKey("RPMDEFS"))
+                ? environmentVariables.get("RPMDEFS")
+                : runnerParameters.get(MockConstants.RPM_MACROS);
     }
 }

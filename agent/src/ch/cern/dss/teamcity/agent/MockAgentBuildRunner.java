@@ -80,7 +80,7 @@ public class MockAgentBuildRunner implements AgentBuildRunner, AgentBuildRunnerI
 
         // Return custom build process
         return new MockBuildProcess(chrootNames, srpms, runnerParameters, build.getArtifactsPaths(),
-                logger);
+                context.getBuildParameters().getEnvironmentVariables(), logger);
     }
 
     /**

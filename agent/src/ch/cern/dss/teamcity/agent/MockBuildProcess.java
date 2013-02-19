@@ -40,6 +40,7 @@ public class MockBuildProcess implements BuildProcess {
     private final List<String> chrootNames;
     private final List<String> srpms;
     private final Map<String, String> runnerParameters;
+    private final Map<String, String> environmentVariables;
     private final String artifactPaths;
     private final BuildProgressLogger logger;
     private Map<String, Future<BuildFinishedStatus>> futures;
@@ -52,17 +53,20 @@ public class MockBuildProcess implements BuildProcess {
      * @param srpms
      * @param runnerParameters
      * @param artifactPaths
+     * @param environmentVariables
      * @param logger
      */
     public MockBuildProcess(@NotNull List<String> chrootNames,
                             @NotNull List<String> srpms,
                             @NotNull Map<String, String> runnerParameters,
                             @NotNull String artifactPaths,
+                            @NotNull Map<String, String> environmentVariables,
                             @NotNull BuildProgressLogger logger) {
         this.chrootNames = chrootNames;
         this.srpms = srpms;
         this.runnerParameters = runnerParameters;
         this.artifactPaths = artifactPaths;
+        this.environmentVariables = environmentVariables;
         this.logger = logger;
         this.futures = new HashMap<String, Future<BuildFinishedStatus>>();
     }
@@ -77,7 +81,7 @@ public class MockBuildProcess implements BuildProcess {
 
         for (String chrootName : chrootNames) {
             Callable<BuildFinishedStatus> thread = new MockCallable(
-                    new MockContext(chrootName, srpms, runnerParameters, artifactPaths), logger);
+                    new MockContext(chrootName, srpms, runnerParameters, artifactPaths, environmentVariables), logger);
 
             Future<BuildFinishedStatus> submit = executor.submit(thread);
             futures.put(chrootName, submit);
