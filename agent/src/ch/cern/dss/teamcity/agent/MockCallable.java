@@ -27,6 +27,7 @@ import com.intellij.openapi.util.text.StringUtil;
 import jetbrains.buildServer.RunBuildException;
 import jetbrains.buildServer.agent.BuildFinishedStatus;
 import jetbrains.buildServer.agent.BuildProgressLogger;
+import jetbrains.buildServer.util.FileUtil;
 import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -74,7 +75,7 @@ public class MockCallable implements Callable<BuildFinishedStatus> {
             clean();
             rebuild();
             publishResults();
-            writeMetadata();
+            publishManifest();
 
         } catch (Exception e) {
             logger.exception(e);
@@ -188,12 +189,13 @@ public class MockCallable implements Callable<BuildFinishedStatus> {
      */
     private void publishResults() throws IOException {
         // Make sure the results (artifacts) directory exists
-        if (!new File(context.getArtifactsPath()).exists()) {
-            new File(context.getArtifactsPath()).mkdirs();
+        File artifactsDirectory = new File(context.getArtifactsPath());
+        if (!artifactsDirectory.exists()) {
+            artifactsDirectory.mkdirs();
         }
 
         // Create the destination directory if it doesn't exist
-        File destinationDirectory = new File(context.getArtifactsPath(), context.getChrootName());
+        File destinationDirectory = new File(artifactsDirectory, context.getChrootName());
         if (!destinationDirectory.exists()) {
             destinationDirectory.mkdirs();
         }
@@ -217,7 +219,18 @@ public class MockCallable implements Callable<BuildFinishedStatus> {
         }
     }
 
-    private void writeMetadata() {
-        // TODO
+    /**
+     * Write a metadata file inside the chroot result directory, for use by the abi-checker plugin.
+     *
+     * @throws IOException
+     */
+    private void publishManifest() throws IOException {
+        File manifestFile = new File(context.getArtifactsPath(), context.getChrootName() + "/manifest.txt");
+        if (!manifestFile.exists()) {
+            manifestFile.createNewFile();
+        }
+
+        // Simply write the chroot name for now
+        FileUtil.writeFile(manifestFile, "chroot=" + context.getChrootName(), "UTF-8");
     }
 }
